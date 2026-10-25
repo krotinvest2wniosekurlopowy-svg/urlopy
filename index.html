@@ -243,13 +243,15 @@
 
   <form id="formularzWniosku">
     <label for="rodzajUrlopu">Rodzaj urlopu</label>
-    <input
-      id="rodzajUrlopu"
-      type="text"
-      maxlength="100"
-      placeholder="Np. urlop wypoczynkowy"
-      required
-    >
+    <label for="rodzajUrlopu">Rodzaj urlopu</label>
+<select id="rodzajUrlopu" required>
+  <option value="">Wybierz</option>
+  <option value="Urlop za nadgodziny">Urlop za nadgodziny</option>
+  <option value="Urlop wypoczynkowy">Urlop wypoczynkowy</option>
+  <option value="Urlop na żądanie">Urlop na żądanie</option>
+  <option value="Urlop okolicznościowy">Urlop okolicznościowy</option>
+  <option value="Urlop bezpłatny">Urlop bezpłatny</option>
+</select>
 
     <label for="dataOd">Data rozpoczęcia urlopu</label>
     <input id="dataOd" type="date" required>
