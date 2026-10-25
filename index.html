@@ -210,20 +210,89 @@
     </button>
   </section>
 
-  <!-- ETAP 3: ZALOGOWANY PRACOWNIK -->
+  <!-- ETAP 3: MENU PRACOWNIKA -->
 
   <section id="ekranZalogowany" class="ukryte">
-    <h2>Logowanie zakończone pomyślnie</h2>
+    <h2>Panel pracownika</h2>
 
     <p class="opis" id="powitanie"></p>
 
-    <p class="informacja">
-      Dostęp do formularza wniosków urlopowych
-      podłączymy w kolejnym etapie.
+    <button type="button" id="menuWniosek">
+      Złóż wniosek
+    </button>
+
+    <button type="button" id="menuHistoria">
+      Przejrzyj wnioski
+    </button>
+
+    <button type="button" id="menuUstawienia">
+      Ustawienia
+    </button>
+  </section>
+
+  <!-- ETAP 4: ZŁÓŻ WNIOSEK -->
+
+  <section id="ekranWniosek" class="ukryte">
+    <h2>Złóż wniosek</h2>
+
+    <p class="opis">
+      Tutaj umieścimy formularz nowego wniosku urlopowego.
     </p>
 
-    <button type="button" id="przyciskWyloguj">
+    <button
+      type="button"
+      class="drugorzedny powrotMenu"
+    >
+      Wróć do menu
+    </button>
+  </section>
+
+  <!-- ETAP 5: PRZEJRZYJ WNIOSKI -->
+
+  <section id="ekranHistoria" class="ukryte">
+    <h2>Przejrzyj wnioski</h2>
+
+    <p class="opis">
+      Tutaj pojawi się historia Twoich wniosków
+      wraz ze statusami decyzji.
+    </p>
+
+    <button
+      type="button"
+      class="drugorzedny powrotMenu"
+    >
+      Wróć do menu
+    </button>
+  </section>
+
+  <!-- ETAP 6: USTAWIENIA -->
+
+  <section id="ekranUstawienia" class="ukryte">
+    <h2>Ustawienia</h2>
+
+    <p class="opis">
+      Dane pracownika i ustawienia konta.
+    </p>
+
+    <button
+      type="button"
+      id="przyciskZmianaDanych"
+    >
+      Zmień dane
+    </button>
+
+    <button
+      type="button"
+      id="przyciskWyloguj"
+    >
       Wyloguj się
+    </button>
+
+    <button
+      type="button"
+      class="drugorzedny powrotMenu"
+    >
+      Wróć do menu
     </button>
   </section>
 
@@ -241,18 +310,24 @@
 
   const $ = id => document.getElementById(id);
 
-  function pokazEkran(nazwa) {
-    ["ekranDanych", "ekranKodu", "ekranZalogowany"]
-      .forEach(id => {
-        $(id).classList.toggle("ukryte", id !== nazwa);
-      });
-
-    pokazKomunikat("");
-  }
-
   function pokazKomunikat(tresc, typ = "") {
     $("wynik").textContent = tresc;
     $("wynik").className = typ;
+  }
+
+  function pokazEkran(nazwa) {
+    [
+      "ekranDanych",
+      "ekranKodu",
+      "ekranZalogowany",
+      "ekranWniosek",
+      "ekranHistoria",
+      "ekranUstawienia"
+    ].forEach(id => {
+      $(id).classList.toggle("ukryte", id !== nazwa);
+    });
+
+    pokazKomunikat("");
   }
 
   function ustawZajetosc(stan) {
@@ -263,10 +338,19 @@
       "przyciskPotwierdz",
       "przyciskPonow",
       "przyciskWroc",
-      "przyciskWyloguj"
+      "przyciskWyloguj",
+      "przyciskZmianaDanych",
+      "menuWniosek",
+      "menuHistoria",
+      "menuUstawienia"
     ].forEach(id => {
       $(id).disabled = stan;
     });
+
+    document.querySelectorAll(".powrotMenu")
+      .forEach(przycisk => {
+        przycisk.disabled = stan;
+      });
   }
 
   async function zapytanie(sciezka, dane) {
@@ -425,6 +509,38 @@
     pokazEkran("ekranZalogowany");
   }
 
+  // MENU PRACOWNIKA
+
+  $("menuWniosek").addEventListener("click", () => {
+    pokazEkran("ekranWniosek");
+  });
+
+  $("menuHistoria").addEventListener("click", () => {
+    pokazEkran("ekranHistoria");
+  });
+
+  $("menuUstawienia").addEventListener("click", () => {
+    pokazEkran("ekranUstawienia");
+  });
+
+  document.querySelectorAll(".powrotMenu")
+    .forEach(przycisk => {
+      przycisk.addEventListener("click", () => {
+        pokazEkran("ekranZalogowany");
+      });
+    });
+
+  $("przyciskZmianaDanych").addEventListener(
+    "click",
+    () => {
+      pokazKomunikat(
+        "Funkcję zmiany danych podłączymy w kolejnym etapie."
+      );
+    }
+  );
+
+  // WYLOGOWANIE
+
   $("przyciskWyloguj").addEventListener(
     "click",
     async () => {
@@ -474,7 +590,8 @@
     }
   );
 
-  // Sprawdzenie istniejącej sesji po odświeżeniu strony.
+  // SPRAWDZENIE SESJI PO ODŚWIEŻENIU STRONY
+
   async function sprawdzIstniejacaSesje() {
     const token = sessionStorage.getItem(KLUCZ_SESJI);
 
@@ -508,8 +625,8 @@
   }
 
   sprawdzIstniejacaSesje();
-  
 </script>
 
 </body>
 </html>
+
