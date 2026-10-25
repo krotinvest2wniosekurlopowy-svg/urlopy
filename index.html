@@ -232,20 +232,63 @@
 
   <!-- ETAP 4: ZŁÓŻ WNIOSEK -->
 
-  <section id="ekranWniosek" class="ukryte">
-    <h2>Złóż wniosek</h2>
+ 
+<!-- ETAP 4: ZŁÓŻ WNIOSEK -->
+<section id="ekranWniosek" class="ukryte">
+  <h2>Złóż wniosek urlopowy</h2>
 
-    <p class="opis">
-      Tutaj umieścimy formularz nowego wniosku urlopowego.
-    </p>
+  <p class="opis">
+    Uzupełnij dane wniosku. Liczbę dni urlopu wpisz samodzielnie.
+  </p>
 
-    <button
-      type="button"
-      class="drugorzedny powrotMenu"
+  <form id="formularzWniosku">
+    <label for="rodzajUrlopu">Rodzaj urlopu</label>
+    <input
+      id="rodzajUrlopu"
+      type="text"
+      maxlength="100"
+      placeholder="Np. urlop wypoczynkowy"
+      required
     >
-      Wróć do menu
+
+    <label for="dataOd">Data rozpoczęcia urlopu</label>
+    <input id="dataOd" type="date" required>
+
+    <label for="dataDo">Data zakończenia urlopu</label>
+    <input id="dataDo" type="date" required>
+
+    <label for="liczbaDni">Liczba dni urlopu</label>
+    <input
+      id="liczbaDni"
+      type="number"
+      min="0.5"
+      max="365"
+      step="0.5"
+      placeholder="Wpisz liczbę dni"
+      required
+    >
+
+    <label for="uwagiUrlop">Uwagi dodatkowe (opcjonalnie)</label>
+    <textarea
+      id="uwagiUrlop"
+      maxlength="2000"
+      rows="3"
+      style="width:100%;padding:12px;border:1px solid #b9c7d5;border-radius:8px;font:inherit"
+    ></textarea>
+
+    <button type="submit" id="przyciskZlozWniosek">
+      Wyślij wniosek do zatwierdzenia
     </button>
-  </section>
+  </form>
+
+  <button
+    type="button"
+    class="drugorzedny powrotMenu"
+  >
+    Wróć do menu
+  </button>
+</section>
+
 
   <!-- ETAP 5: PRZEJRZYJ WNIOSKI -->
 
@@ -510,6 +553,75 @@
   }
 
   // MENU PRACOWNIKA
+
+$("formularzWniosku").addEventListener("submit", async zdarzenie => {
+  zdarzenie.preventDefault();
+
+  if (zajety) return;
+
+  const token = sessionStorage.getItem(KLUCZ_SESJI);
+  if (!token) {
+    pokazKomunikat("Sesja wygasła. Zaloguj się ponownie.", "blad");
+    pokazEkran("ekranDanych");
+    return;
+  }
+
+  const dataOd = $("dataOd").value;
+  const dataDo = $("dataDo").value;
+  const liczbaDni = Number($("liczbaDni").value);
+  const rodzaj = $("rodzajUrlopu").value.trim();
+  const uwagi = $("uwagiUrlop").value.trim();
+
+  if (!rodzaj || !dataOd || !dataDo ||
+      dataDo < dataOd ||
+      !Number.isFinite(liczbaDni) ||
+      liczbaDni <= 0 || liczbaDni > 365) {
+    pokazKomunikat(
+      "Sprawdź rodzaj urlopu, daty i liczbę dni.",
+      "blad"
+    );
+    return;
+  }
+
+  ustawZajetosc(true);
+  $("przyciskZlozWniosek").disabled = true;
+  pokazKomunikat("Przekazywanie wniosku do systemu...");
+
+  try {
+    const wynik = await zapytanie("/zloz-wniosek", {
+      token,
+      rodzaj,
+      dataOd,
+      dataDo,
+      liczbaDni,
+      uwagi
+    });
+
+    if (wynik.status !== "OK") {
+      pokazKomunikat(
+        wynik.komunikat || "Nie udało się wysłać wniosku.",
+        "blad"
+      );
+      return;
+    }
+
+    $("formularzWniosku").reset();
+    pokazKomunikat(
+      wynik.komunikat || "Wniosek przekazano do zatwierdzenia.",
+      "sukces"
+    );
+    pokazEkran("ekranZalogowany");
+    pokazKomunikat(
+      wynik.komunikat || "Wniosek przekazano do zatwierdzenia.",
+      "sukces"
+    );
+  } catch (blad) {
+    pokazKomunikat(blad.message, "blad");
+  } finally {
+    ustawZajetosc(false);
+    $("przyciskZlozWniosek").disabled = false;
+  }
+});
 
   $("menuWniosek").addEventListener("click", () => {
     pokazEkran("ekranWniosek");
