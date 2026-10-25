@@ -665,14 +665,16 @@
     }
   );
 
-  function pokazZalogowanego(uzytkownik) {
-    $("powitanie").textContent =
-      "Witaj, " +
-      (uzytkownik.imieNazwisko || "Pracowniku") +
-      "!";
+function pokazZalogowanego(uzytkownik) {
+  danePracownika = uzytkownik;
 
-    pokazEkran("ekranZalogowany");
-  }
+  $("powitanie").textContent =
+    "Witaj, " +
+    (uzytkownik.imieNazwisko || "Pracowniku") +
+    "!";
+
+  pokazEkran("ekranZalogowany");
+}
 
   // MENU PRACOWNIKA
 
