@@ -401,34 +401,65 @@
 
   <!-- ETAP 6: USTAWIENIA -->
 
-  <section id="ekranUstawienia" class="ukryte">
-    <h2>Ustawienia</h2>
 
-    <p class="opis">
-      Dane pracownika i ustawienia konta.
+<section id="ekranUstawienia" class="ukryte">
+  <h2>Ustawienia</h2>
+
+  <p class="opis">
+    Dane pracownika i ustawienia konta.
+  </p>
+
+  <button type="button" id="przyciskZmianaDanych">
+    Zmień dane
+  </button>
+
+  <form id="formularzZmianyDanych" class="ukryte">
+    <label for="noweImieNazwisko">Imię i nazwisko</label>
+    <input
+      id="noweImieNazwisko"
+      type="text"
+      autocomplete="name"
+      maxlength="150"
+      required
+    >
+
+    <label for="emailKonta">Adres e-mail</label>
+    <input
+      id="emailKonta"
+      type="email"
+      readonly
+      aria-describedby="informacjaEmail"
+    >
+
+    <p id="informacjaEmail" class="informacja">
+      Adres e-mail konta nie może być zmieniany w tym formularzu.
     </p>
 
-    <button
-      type="button"
-      id="przyciskZmianaDanych"
-    >
-      Zmień dane
+    <button type="submit" id="przyciskZapiszDane">
+      Zapisz zmiany
     </button>
 
     <button
       type="button"
-      id="przyciskWyloguj"
+      class="drugorzedny"
+      id="przyciskAnulujZmiane"
     >
-      Wyloguj się
+      Anuluj
     </button>
+  </form>
 
-    <button
-      type="button"
-      class="drugorzedny powrotMenu"
-    >
-      Wróć do menu
-    </button>
-  </section>
+  <button type="button" id="przyciskWyloguj">
+    Wyloguj się
+  </button>
+
+  <button
+    type="button"
+    class="drugorzedny powrotMenu"
+  >
+    Wróć do menu
+  </button>
+</section>
+
 
   <p id="wynik" role="status" aria-live="polite"></p>
 </main>
