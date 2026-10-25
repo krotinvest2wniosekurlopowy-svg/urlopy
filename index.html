@@ -4,8 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>KROTINVEST – Aplikacja Urlopy</title>
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 24px;
@@ -15,17 +21,59 @@
     }
 
     main {
-      max-width: 420px;
+      max-width: 440px;
       margin: 50px auto;
-      padding: 28px 20px;
+      padding: 30px 24px;
       background: white;
       border-radius: 16px;
       box-shadow: 0 4px 20px #00000012;
+    }
+
+    h1, h2 {
       text-align: center;
     }
 
+    h1 {
+      margin-bottom: 4px;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 19px;
+      font-weight: normal;
+    }
+
+    .opis {
+      text-align: center;
+      color: #52677f;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      margin-top: 18px;
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #b9c7d5;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    input:focus {
+      outline: 2px solid #5284bd;
+      outline-offset: 1px;
+    }
+
     button {
-      padding: 12px 18px;
+      width: 100%;
+      margin-top: 20px;
+      padding: 13px 18px;
       border: 0;
       border-radius: 8px;
       background: #17365d;
@@ -34,50 +82,433 @@
       cursor: pointer;
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    button.drugorzedny {
+      background: #e8edf3;
+      color: #17365d;
+    }
+
     #wynik {
       margin-top: 20px;
+      text-align: center;
+      line-height: 1.5;
       overflow-wrap: anywhere;
+      min-height: 24px;
+    }
+
+    .blad {
+      color: #a52222;
+    }
+
+    .sukces {
+      color: #17633b;
+    }
+
+    .ukryte {
+      display: none;
+    }
+
+    .informacja {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #52677f;
+      text-align: center;
     }
   </style>
 </head>
+
 <body>
-  <main>
-    <h1>KROTINVEST</h1>
-    <h2>Aplikacja Urlopy</h2>
-    <p>Test połączenia z serwerem</p>
 
-    <button id="test">Sprawdź połączenie</button>
+<main>
+  <h1>KROTINVEST</h1>
+  <h2>Aplikacja Urlopy</h2>
 
-    <p id="wynik" role="status">
-      Oczekiwanie na test.
+  <!-- ETAP 1: DANE PRACOWNIKA -->
+
+  <section id="ekranDanych">
+    <p class="opis">
+      Zaloguj się, aby uzyskać dostęp do aplikacji.
     </p>
-  </main>
 
-  <script>
-    const API =
-      "https://krotinvest-urlopy-api.krotinvest2wniosekurlopowy.workers.dev";
+    <form id="formularzDanych">
+      <label for="imieNazwisko">
+        Imię i nazwisko
+      </label>
 
-    document.getElementById("test").addEventListener("click", async () => {
-      const wynik = document.getElementById("wynik");
-      wynik.textContent = "Sprawdzanie połączenia...";
+      <input
+        id="imieNazwisko"
+        type="text"
+        autocomplete="name"
+        maxlength="150"
+        required
+      >
+
+      <label for="email">
+        Adres e-mail
+      </label>
+
+      <input
+        id="email"
+        type="email"
+        autocomplete="email"
+        maxlength="254"
+        required
+      >
+
+      <button type="submit" id="przyciskWyslij">
+        Wyślij kod weryfikacyjny
+      </button>
+    </form>
+  </section>
+
+  <!-- ETAP 2: KOD WERYFIKACYJNY -->
+
+  <section id="ekranKodu" class="ukryte">
+    <p class="opis">
+      Wysłaliśmy kod na podany adres e-mail.
+      Wpisz otrzymany sześciocyfrowy kod.
+    </p>
+
+    <form id="formularzKodu">
+      <label for="kod">
+        Kod weryfikacyjny
+      </label>
+
+      <input
+        id="kod"
+        type="text"
+        inputmode="numeric"
+        pattern="[0-9]{6}"
+        maxlength="6"
+        autocomplete="one-time-code"
+        required
+      >
+
+      <button type="submit" id="przyciskPotwierdz">
+        Potwierdź kod
+      </button>
+    </form>
+
+    <button
+      type="button"
+      class="drugorzedny"
+      id="przyciskPonow"
+    >
+      Wyślij kod ponownie
+    </button>
+
+    <button
+      type="button"
+      class="drugorzedny"
+      id="przyciskWroc"
+    >
+      Zmień dane
+    </button>
+  </section>
+
+  <!-- ETAP 3: ZALOGOWANY PRACOWNIK -->
+
+  <section id="ekranZalogowany" class="ukryte">
+    <h2>Logowanie zakończone pomyślnie</h2>
+
+    <p class="opis" id="powitanie"></p>
+
+    <p class="informacja">
+      Dostęp do formularza wniosków urlopowych
+      podłączymy w kolejnym etapie.
+    </p>
+
+    <button type="button" id="przyciskWyloguj">
+      Wyloguj się
+    </button>
+  </section>
+
+  <p id="wynik" role="status" aria-live="polite"></p>
+</main>
+
+<script>
+  const API =
+    "https://krotinvest-urlopy-api.krotinvest2wniosekurlopowy.workers.dev";
+
+  const KLUCZ_SESJI = "KROTINVEST_SESJA";
+
+  let danePracownika = null;
+  let zajety = false;
+
+  const $ = id => document.getElementById(id);
+
+  function pokazEkran(nazwa) {
+    ["ekranDanych", "ekranKodu", "ekranZalogowany"]
+      .forEach(id => {
+        $(id).classList.toggle("ukryte", id !== nazwa);
+      });
+
+    pokazKomunikat("");
+  }
+
+  function pokazKomunikat(tresc, typ = "") {
+    $("wynik").textContent = tresc;
+    $("wynik").className = typ;
+  }
+
+  function ustawZajetosc(stan) {
+    zajety = stan;
+
+    [
+      "przyciskWyslij",
+      "przyciskPotwierdz",
+      "przyciskPonow",
+      "przyciskWroc",
+      "przyciskWyloguj"
+    ].forEach(id => {
+      $(id).disabled = stan;
+    });
+  }
+
+  async function zapytanie(sciezka, dane) {
+    const odpowiedz = await fetch(API + sciezka, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(dane),
+      cache: "no-store"
+    });
+
+    if (!odpowiedz.ok) {
+      throw new Error(
+        "Serwer jest chwilowo niedostępny. Spróbuj ponownie."
+      );
+    }
+
+    return await odpowiedz.json();
+  }
+
+  function pobierzDanePracownika() {
+    return {
+      imieNazwisko: $("imieNazwisko").value
+        .trim()
+        .replace(/\s+/g, " "),
+
+      email: $("email").value.trim().toLowerCase()
+    };
+  }
+
+  async function wyslijKod() {
+    if (zajety) return;
+
+    danePracownika = pobierzDanePracownika();
+
+    ustawZajetosc(true);
+    pokazKomunikat("Wysyłanie kodu...");
+
+    try {
+      const wynik = await zapytanie(
+        "/wyslij-kod",
+        danePracownika
+      );
+
+      if (wynik.status !== "OK") {
+        pokazKomunikat(
+          wynik.komunikat || "Nie udało się wysłać kodu.",
+          "blad"
+        );
+        return;
+      }
+
+      pokazEkran("ekranKodu");
+      pokazKomunikat(
+        "Kod został wysłany. Sprawdź pocztę.",
+        "sukces"
+      );
+
+      $("kod").focus();
+
+    } catch (blad) {
+      pokazKomunikat(blad.message, "blad");
+
+    } finally {
+      ustawZajetosc(false);
+    }
+  }
+
+  $("formularzDanych").addEventListener(
+    "submit",
+    async zdarzenie => {
+      zdarzenie.preventDefault();
+      await wyslijKod();
+    }
+  );
+
+  $("przyciskPonow").addEventListener(
+    "click",
+    wyslijKod
+  );
+
+  $("przyciskWroc").addEventListener("click", () => {
+    if (zajety) return;
+
+    $("kod").value = "";
+    pokazEkran("ekranDanych");
+  });
+
+  $("formularzKodu").addEventListener(
+    "submit",
+    async zdarzenie => {
+      zdarzenie.preventDefault();
+
+      if (zajety || !danePracownika) return;
+
+      const kod = $("kod").value.trim();
+
+      if (!/^[0-9]{6}$/.test(kod)) {
+        pokazKomunikat(
+          "Wpisz prawidłowy sześciocyfrowy kod.",
+          "blad"
+        );
+        return;
+      }
+
+      ustawZajetosc(true);
+      pokazKomunikat("Sprawdzanie kodu...");
 
       try {
-        const odpowiedz = await fetch(API + "/test");
+        const wynik = await zapytanie(
+          "/zweryfikuj-kod",
+          {
+            ...danePracownika,
+            kod
+          }
+        );
 
-        if (!odpowiedz.ok) {
-          throw new Error("HTTP " + odpowiedz.status);
+        if (
+          wynik.status !== "OK" ||
+          typeof wynik.token !== "string"
+        ) {
+          pokazKomunikat(
+            wynik.komunikat || "Nie udało się potwierdzić kodu.",
+            "blad"
+          );
+          return;
         }
 
-        const dane = await odpowiedz.json();
+        sessionStorage.setItem(
+          KLUCZ_SESJI,
+          wynik.token
+        );
 
-        wynik.textContent = dane.status === "OK"
-          ? "Połączenie działa prawidłowo."
-          : "Otrzymano nieoczekiwaną odpowiedź.";
+        $("kod").value = "";
+
+        pokazZalogowanego(
+          wynik.uzytkownik || danePracownika
+        );
+
       } catch (blad) {
-        wynik.textContent =
-          "Nie udało się połączyć. Spróbuj ponownie.";
+        pokazKomunikat(blad.message, "blad");
+
+      } finally {
+        ustawZajetosc(false);
       }
-    });
-  </script>
+    }
+  );
+
+  function pokazZalogowanego(uzytkownik) {
+    $("powitanie").textContent =
+      "Witaj, " +
+      (uzytkownik.imieNazwisko || "Pracowniku") +
+      "!";
+
+    pokazEkran("ekranZalogowany");
+  }
+
+  $("przyciskWyloguj").addEventListener(
+    "click",
+    async () => {
+      if (zajety) return;
+
+      const token = sessionStorage.getItem(KLUCZ_SESJI);
+
+      ustawZajetosc(true);
+      pokazKomunikat("Wylogowywanie...");
+
+      try {
+        if (token) {
+          const wynik = await zapytanie(
+            "/wyloguj",
+            { token }
+          );
+
+          if (wynik.status !== "OK") {
+            pokazKomunikat(
+              wynik.komunikat || "Nie udało się wylogować.",
+              "blad"
+            );
+            return;
+          }
+        }
+
+        sessionStorage.removeItem(KLUCZ_SESJI);
+        danePracownika = null;
+
+        $("kod").value = "";
+        pokazEkran("ekranDanych");
+
+        pokazKomunikat(
+          "Wylogowano pomyślnie.",
+          "sukces"
+        );
+
+      } catch (blad) {
+        pokazKomunikat(
+          "Nie udało się potwierdzić wylogowania. Spróbuj ponownie.",
+          "blad"
+        );
+
+      } finally {
+        ustawZajetosc(false);
+      }
+    }
+  );
+
+  // Sprawdzenie istniejącej sesji po odświeżeniu strony.
+  async function sprawdzIstniejacaSesje() {
+    const token = sessionStorage.getItem(KLUCZ_SESJI);
+
+    if (!token) return;
+
+    ustawZajetosc(true);
+    pokazKomunikat("Sprawdzanie sesji...");
+
+    try {
+      const wynik = await zapytanie(
+        "/sprawdz-sesje",
+        { token }
+      );
+
+      if (wynik.status === "OK") {
+        pokazZalogowanego(wynik.uzytkownik || {});
+      } else {
+        sessionStorage.removeItem(KLUCZ_SESJI);
+        pokazEkran("ekranDanych");
+      }
+
+    } catch (blad) {
+      pokazKomunikat(
+        "Nie udało się sprawdzić sesji. Spróbuj odświeżyć stronę.",
+        "blad"
+      );
+
+    } finally {
+      ustawZajetosc(false);
+    }
+  }
+
+  sprawdzIstniejacaSesje();
+</script>
+
 </body>
 </html>
