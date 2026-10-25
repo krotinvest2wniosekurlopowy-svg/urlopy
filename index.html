@@ -298,21 +298,64 @@
 
   <!-- ETAP 5: PRZEJRZYJ WNIOSKI -->
 
-  <section id="ekranHistoria" class="ukryte">
-    <h2>Przejrzyj wnioski</h2>
 
-    <p class="opis">
-      Tutaj pojawi się historia Twoich wniosków
-      wraz ze statusami decyzji.
-    </p>
+<section id="ekranHistoria" class="ukryte">
+  <h2>Historia wniosków urlopowych</h2>
 
+  <p class="opis">
+    Tutaj możesz sprawdzić status swoich wniosków
+    oraz decyzje przełożonego.
+  </p>
+
+  <div class="akcjeHistoria">
     <button
       type="button"
-      class="drugorzedny powrotMenu"
+      id="przyciskOdswiezHistorie"
+      class="drugorzedny"
     >
-      Wróć do menu
+      Odśwież historię
     </button>
-  </section>
+  </div>
+
+  <p
+    id="komunikatHistorii"
+    class="opis"
+    role="status"
+    aria-live="polite"
+  ></p>
+
+  <div class="tabelaHistoria">
+    <table id="tabelaHistorii">
+      <thead>
+        <tr>
+          <th>Numer wniosku</th>
+          <th>Rodzaj urlopu</th>
+          <th>Data od</th>
+          <th>Data do</th>
+          <th>Liczba dni</th>
+          <th>Status</th>
+          <th>Data decyzji</th>
+          <th>Uwagi przełożonego</th>
+        </tr>
+      </thead>
+      <tbody id="wierszeHistorii">
+        <tr>
+          <td colspan="8">
+            Kliknij „Odśwież historię”, aby pobrać wnioski.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <button
+    type="button"
+    class="drugorzedny powrotMenu"
+  >
+    Wróć do menu
+  </button>
+</section>
+
 
   <!-- ETAP 6: USTAWIENIA -->
 
