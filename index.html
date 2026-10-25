@@ -666,16 +666,23 @@
   );
 
 function pokazZalogowanego(uzytkownik) {
-  danePracownika = uzytkownik;
+  const dane = uzytkownik || danePracownika || {};
+
+  danePracownika = {
+    imieNazwisko:
+      dane.imieNazwisko ||
+      $("imieNazwisko").value.trim().replace(/\s+/g, " "),
+
+    email:
+      dane.email ||
+      $("email").value.trim().toLowerCase()
+  };
 
   $("powitanie").textContent =
-    "Witaj, " +
-    (uzytkownik.imieNazwisko || "Pracowniku") +
-    "!";
+    "Witaj, " + (danePracownika.imieNazwisko || "Pracowniku") + "!";
 
   pokazEkran("ekranZalogowany");
 }
-
   // MENU PRACOWNIKA
 
 $("formularzWniosku").addEventListener("submit", async zdarzenie => {
