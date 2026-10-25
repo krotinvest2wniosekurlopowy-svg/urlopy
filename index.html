@@ -3,57 +3,81 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>KROTINVEST – Aplikacja Urlopy</title>
-
   <style>
     body {
       margin: 0;
+      padding: 24px;
       font-family: Arial, sans-serif;
       background: #f2f5f9;
       color: #17365d;
     }
 
-    .kontener {
+    main {
       max-width: 420px;
-      margin: 80px auto;
-      padding: 24px;
+      margin: 50px auto;
+      padding: 28px 20px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px #00000012;
       text-align: center;
     }
 
-    .karta {
-      background: white;
-      padding: 30px 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px #00000012;
+    button {
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 8px;
+      background: #17365d;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
     }
 
-    h1 {
-      font-size: 28px;
-    }
-
-    .status {
-      color: #178044;
-      font-weight: bold;
-      margin-top: 24px;
+    #wynik {
+      margin-top: 20px;
+      overflow-wrap: anywhere;
     }
   </style>
 </head>
-
 <body>
-  <main class="kontener">
-    <div class="karta">
-      <h1>KROTINVEST</h1>
-      <h2>Aplikacja Urlopy</h2>
+  <main>
+    <h1>KROTINVEST</h1>
+    <h2>Aplikacja Urlopy</h2>
+    <p>Test połączenia z serwerem</p>
 
-      <p>Witamy w aplikacji pracowniczej.</p>
+    <button id="test">Sprawdź połączenie</button>
 
-      <p class="status">
-        Strona działa prawidłowo.
-      </p>
-    </div>
+    <p id="wynik" role="status">
+      Oczekiwanie na test.
+    </p>
   </main>
+
+  <script>
+    const API =
+      "https://krotinvest-urlopy-api.krotinvest2wniosekurlopowy.workers.dev";
+
+    document.getElementById("test").addEventListener("click", async () => {
+      const wynik = document.getElementById("wynik");
+      wynik.textContent = "Sprawdzanie połączenia...";
+
+      try {
+        const odpowiedz = await fetch(API + "/test");
+
+        if (!odpowiedz.ok) {
+          throw new Error("HTTP " + odpowiedz.status);
+        }
+
+        const dane = await odpowiedz.json();
+
+        wynik.textContent = dane.status === "OK"
+          ? "Połączenie działa prawidłowo."
+          : "Otrzymano nieoczekiwaną odpowiedź.";
+      } catch (blad) {
+        wynik.textContent =
+          "Nie udało się połączyć. Spróbuj ponownie.";
+      }
+    });
+  </script>
 </body>
 </html>
