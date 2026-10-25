@@ -647,7 +647,7 @@
           return;
         }
 
-        sessionStorage.setItem(
+        localStorage.setItem(
           KLUCZ_SESJI,
           wynik.token
         );
@@ -692,7 +692,7 @@ $("formularzWniosku").addEventListener("submit", async zdarzenie => {
 
   if (zajety) return;
 
-  const token = sessionStorage.getItem(KLUCZ_SESJI);
+  const token = localStorage.getItem(KLUCZ_SESJI);
   if (!token) {
     pokazKomunikat("Sesja wygasła. Zaloguj się ponownie.", "blad");
     pokazEkran("ekranDanych");
@@ -764,7 +764,7 @@ $("formularzWniosku").addEventListener("submit", async zdarzenie => {
 async function pobierzHistorie() {
   if (zajety) return;
 
-  const token = sessionStorage.getItem(KLUCZ_SESJI);
+  const token = localStorage.getItem(KLUCZ_SESJI);
 
   if (!token) {
     pokazKomunikat(
@@ -920,7 +920,7 @@ $("formularzZmianyDanych").addEventListener("submit", async (e) => {
     .trim()
     .replace(/\s+/g, " ");
 
-  const token = sessionStorage.getItem(KLUCZ_SESJI);
+  const token = localStorage.getItem(KLUCZ_SESJI);
 
   if (!token) {
     pokazKomunikat("Sesja wygasła. Zaloguj się ponownie.");
@@ -971,7 +971,7 @@ $("formularzZmianyDanych").addEventListener("submit", async (e) => {
     async () => {
       if (zajety) return;
 
-      const token = sessionStorage.getItem(KLUCZ_SESJI);
+      const token = localStorage.getItem(KLUCZ_SESJI);
 
       ustawZajetosc(true);
       pokazKomunikat("Wylogowywanie...");
@@ -992,7 +992,7 @@ $("formularzZmianyDanych").addEventListener("submit", async (e) => {
           }
         }
 
-        sessionStorage.removeItem(KLUCZ_SESJI);
+        localStorage.removeItem(KLUCZ_SESJI);
         danePracownika = null;
 
         $("kod").value = "";
@@ -1018,7 +1018,7 @@ $("formularzZmianyDanych").addEventListener("submit", async (e) => {
   // SPRAWDZENIE SESJI PO ODŚWIEŻENIU STRONY
 
   async function sprawdzIstniejacaSesje() {
-    const token = sessionStorage.getItem(KLUCZ_SESJI);
+    const token = localStorage.getItem(KLUCZ_SESJI);
 
     if (!token) return;
 
@@ -1034,7 +1034,7 @@ $("formularzZmianyDanych").addEventListener("submit", async (e) => {
       if (wynik.status === "OK") {
         pokazZalogowanego(wynik.uzytkownik || {});
       } else {
-        sessionStorage.removeItem(KLUCZ_SESJI);
+        localStorage.removeItem(KLUCZ_SESJI);
         pokazEkran("ekranDanych");
       }
 
