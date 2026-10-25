@@ -878,14 +878,80 @@ $("przyciskOdswiezHistorie").addEventListener(
       });
     });
 
-  $("przyciskZmianaDanych").addEventListener(
-    "click",
-    () => {
-      pokazKomunikat(
-        "Funkcję zmiany danych podłączymy w kolejnym etapie."
+ 
+$("przyciskZmianaDanych").addEventListener("click", () => {
+  if (!danePracownika) {
+    pokazKomunikat("Nie udało się pobrać danych zalogowanego pracownika.");
+    return;
+  }
+
+  $("noweImieNazwisko").value =
+    danePracownika.imieNazwisko || "";
+
+  $("emailKonta").value =
+    danePracownika.email || "";
+
+  $("formularzZmianyDanych").classList.remove("ukryte");
+  pokazKomunikat("");
+});
+
+$("przyciskAnulujZmiane").addEventListener("click", () => {
+  $("formularzZmianyDanych").classList.add("ukryte");
+  pokazKomunikat("");
+});
+
+$("formularzZmianyDanych").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  if (zajety) return;
+
+  const imieNazwisko = $("noweImieNazwisko").value
+    .trim()
+    .replace(/\s+/g, " ");
+
+  const token = sessionStorage.getItem(KLUCZ_SESJI);
+
+  if (!token) {
+    pokazKomunikat("Sesja wygasła. Zaloguj się ponownie.");
+    return;
+  }
+
+  if (imieNazwisko.length < 3 || !imieNazwisko.includes(" ")) {
+    pokazKomunikat("Podaj prawidłowe imię i nazwisko.");
+    return;
+  }
+
+  ustawZajetosc(true);
+
+  try {
+    const wynik = await zapytanie("/zmien-dane", {
+      token: token,
+      imieNazwisko: imieNazwisko
+    });
+
+    if (wynik.status !== "OK") {
+      throw new Error(
+        wynik.komunikat || "Nie udało się zapisać zmian."
       );
     }
-  );
+
+    danePracownika = {
+      ...danePracownika,
+      imieNazwisko: wynik.uzytkownik?.imieNazwisko || imieNazwisko
+    };
+
+    pokazZalogowanego(danePracownika);
+    $("formularzZmianyDanych").classList.add("ukryte");
+    pokazEkran("ekranUstawienia");
+    pokazKomunikat(wynik.komunikat || "Dane zostały zapisane.");
+
+  } catch (blad) {
+    pokazKomunikat(blad.message || "Wystąpił błąd podczas zapisywania danych.");
+  } finally {
+    ustawZajetosc(false);
+  }
+});
+
 
   // WYLOGOWANIE
 
