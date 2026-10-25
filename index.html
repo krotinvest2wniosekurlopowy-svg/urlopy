@@ -118,6 +118,48 @@
       color: #52677f;
       text-align: center;
     }
+    
+.tabelaHistoria {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 16px;
+}
+
+#tabelaHistorii {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+#tabelaHistorii th,
+#tabelaHistorii td {
+  padding: 10px;
+  border-bottom: 1px solid #dbe3ec;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+#tabelaHistorii th {
+  background: #f2f5f9;
+}
+
+#tabelaHistorii .statusZatwierdzony {
+  color: #17633b;
+  font-weight: bold;
+}
+
+#tabelaHistorii .statusOdrzucony {
+  color: #a52222;
+  font-weight: bold;
+}
+
+#tabelaHistorii .statusOczekujacy {
+  color: #8a5a00;
+  font-weight: bold;
+}
+
   </style>
 </head>
 
@@ -676,9 +718,123 @@ $("formularzWniosku").addEventListener("submit", async zdarzenie => {
     pokazEkran("ekranWniosek");
   });
 
-  $("menuHistoria").addEventListener("click", () => {
-    pokazEkran("ekranHistoria");
-  });
+  
+async function pobierzHistorie() {
+  if (zajety) return;
+
+  const token = sessionStorage.getItem(KLUCZ_SESJI);
+
+  if (!token) {
+    pokazKomunikat(
+      "Sesja wygasła. Zaloguj się ponownie.",
+      "blad"
+    );
+    pokazEkran("ekranDanych");
+    return;
+  }
+
+  const przycisk = $("przyciskOdswiezHistorie");
+  const tbody = $("wierszeHistorii");
+  const komunikat = $("komunikatHistorii");
+
+  ustawZajetosc(true);
+  przycisk.disabled = true;
+  komunikat.textContent = "Pobieranie historii wniosków...";
+  tbody.replaceChildren();
+
+  try {
+    const wynik = await zapytanie("/historia-wnioskow", { token });
+
+    if (wynik.status !== "OK") {
+      throw new Error(
+        wynik.komunikat || "Nie udało się pobrać historii."
+      );
+    }
+
+    const wnioski = Array.isArray(wynik.wnioski)
+      ? wynik.wnioski
+      : [];
+
+    if (wnioski.length === 0) {
+      const wiersz = document.createElement("tr");
+      const komorka = document.createElement("td");
+      komorka.colSpan = 8;
+      komorka.textContent = "Nie znaleziono żadnych wniosków.";
+      wiersz.appendChild(komorka);
+      tbody.appendChild(wiersz);
+
+      komunikat.textContent = "Historia została zaktualizowana.";
+      return;
+    }
+
+    const pola = [
+      "numerWniosku",
+      "rodzaj",
+      "dataOd",
+      "dataDo",
+      "liczbaDni",
+      "status",
+      "dataDecyzji",
+      "uwagiPrzelozonego"
+    ];
+
+    wnioski.forEach(wniosek => {
+      const wiersz = document.createElement("tr");
+
+      pola.forEach(pole => {
+        const komorka = document.createElement("td");
+        const wartosc = wniosek[pole];
+
+        komorka.textContent =
+          wartosc === null ||
+          wartosc === undefined ||
+          wartosc === ""
+            ? "—"
+            : String(wartosc);
+
+        if (pole === "status") {
+          komorka.className =
+            String(wartosc).toLowerCase() === "zatwierdzony"
+              ? "statusZatwierdzony"
+              : String(wartosc).toLowerCase() === "odrzucony"
+                ? "statusOdrzucony"
+                : "statusOczekujacy";
+        }
+
+        wiersz.appendChild(komorka);
+      });
+
+      tbody.appendChild(wiersz);
+    });
+
+    komunikat.textContent =
+      "Pobrano wniosków: " + wnioski.length + ".";
+
+  } catch (blad) {
+    const wiersz = document.createElement("tr");
+    const komorka = document.createElement("td");
+    komorka.colSpan = 8;
+    komorka.textContent = "Nie udało się pobrać historii.";
+    wiersz.appendChild(komorka);
+    tbody.appendChild(wiersz);
+
+    komunikat.textContent = blad.message;
+  } finally {
+    ustawZajetosc(false);
+    przycisk.disabled = false;
+  }
+}
+
+$("menuHistoria").addEventListener("click", () => {
+  pokazEkran("ekranHistoria");
+  pobierzHistorie();
+});
+
+$("przyciskOdswiezHistorie").addEventListener(
+  "click",
+  pobierzHistorie
+);
+
 
   $("menuUstawienia").addEventListener("click", () => {
     pokazEkran("ekranUstawienia");
