@@ -317,6 +317,17 @@
       placeholder="Wpisz liczbę dni"
       required
     >
+    <label for="osobaZastepujaca">Osoba zastępująca *</label>
+    <input
+      id="osobaZastepujaca"
+      type="text"
+      placeholder="Np. Jan Kowalski"
+      maxlength="100"
+      autocomplete="off"
+      pattern="[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż]+ [A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż]+(-[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż]+)*"
+      title="Wpisz imię i nazwisko jednej osoby, np. Jan Kowalski."
+      required
+    >
 
     <label for="uwagiUrlop">Uwagi dodatkowe (opcjonalnie)</label>
     <textarea
@@ -703,6 +714,7 @@ $("formularzWniosku").addEventListener("submit", async zdarzenie => {
   const dataDo = $("dataDo").value;
   const liczbaDni = Number($("liczbaDni").value);
   const rodzaj = $("rodzajUrlopu").value.trim();
+  const osobaZastepujaca = $("osobaZastepujaca").value.trim().replace(/\s+/g, " ");
   const uwagi = $("uwagiUrlop").value.trim();
 
   if (!rodzaj || !dataOd || !dataDo ||
@@ -714,6 +726,16 @@ $("formularzWniosku").addEventListener("submit", async zdarzenie => {
       "blad"
     );
     return;
+const wzorOsoby =
+  /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż]+ [A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż]+(-[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż]+)*$/;
+
+if (!wzorOsoby.test(osobaZastepujaca)) {
+  pokazKomunikat(
+    "Wpisz imię i nazwisko jednej osoby zastępującej.",
+    "blad"
+  );
+  return;
+}
   }
 
   ustawZajetosc(true);
@@ -727,6 +749,7 @@ $("formularzWniosku").addEventListener("submit", async zdarzenie => {
       dataOd,
       dataDo,
       liczbaDni,
+      osobaZastepujaca,
       uwagi
     });
 
